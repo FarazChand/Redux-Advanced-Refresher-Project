@@ -1,5 +1,4 @@
-import React from "react";
-import { configureStore, createSlice } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 
 import uiSliceReducer from "./uiSlice";
 import cartSliceReducer from "./cartSlice";

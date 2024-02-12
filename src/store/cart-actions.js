@@ -1,4 +1,5 @@
 import { uiActions } from "./uiSlice";
+import { cartActions } from "./cartSlice";
 
 export const sendCartData = (cart) => {
   return async (dispatch) => {
@@ -15,7 +16,10 @@ export const sendCartData = (cart) => {
         `${process.env.REACT_APP_FIREBASE_URL}cart.json`,
         {
           method: "PUT",
-          body: JSON.stringify(cart),
+          body: JSON.stringify({
+            cartItems: cart.cartItems,
+            totalAmount: cart.totalAmount,
+          }),
         }
       );
 
@@ -32,7 +36,7 @@ export const sendCartData = (cart) => {
           message: "Sent cart data successfully!",
         })
       );
-    } catch {
+    } catch (error) {
       dispatch(
         uiActions.showNotification({
           status: "error",
@@ -44,4 +48,38 @@ export const sendCartData = (cart) => {
   };
 };
 
-export const fetchCartData = () => {};
+export const fetchCartData = () => {
+  return async (dispatch) => {
+    const fetchData = async () => {
+      const response = await fetch(
+        `${process.env.REACT_APP_FIREBASE_URL}cart.json`
+      );
+
+      const cartData = await response.json();
+
+      if (!response.ok) {
+        throw new Error("Fetching cart data failed");
+      }
+
+      return cartData;
+    };
+
+    try {
+      const data = await fetchData();
+      dispatch(
+        cartActions.replaceCart({
+          cartItems: data.cartItems || [],
+          totalAmount: data.totalAmount,
+        })
+      );
+    } catch (error) {
+      dispatch(
+        uiActions.showNotification({
+          status: "error",
+          title: "Error!",
+          message: "Sending cart data failed!",
+        })
+      );
+    }
+  };
+};
